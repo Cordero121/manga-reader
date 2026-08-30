@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import MangaReader from "../../../../components/reader/MangaReader";
-import { mangas } from "../../../../data/mangas";
+import MangaReader from "../../../../../components/reader/MangaReader";
+import { mangas } from "../../../../../data/mangas";
 
 interface ReaderPageProps {
   params: Promise<{

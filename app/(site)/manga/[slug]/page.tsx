@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { mangas } from "../../../data/mangas";
+import { mangas } from "../../../../data/mangas";
 
 interface MangaPageProps {
   params: Promise<{

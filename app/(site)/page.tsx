@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { mangas } from "../data/mangas";
+import { mangas } from "../../data/mangas";
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
