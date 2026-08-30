@@ -22,9 +22,13 @@ export const mangas = [
   },
   {
     numero: 2,
-    titulo: "Una nueva aventura",
-    fecha: "Próximamente",
-    paginas: [],
+  titulo: "Una nueva aventura",
+  fecha: "30/08/2026",
+  paginas: [
+    "/mangas/prueba/pagina-1.jpg",
+    "/mangas/prueba/pagina-2.jpg",
+    "/mangas/prueba/pagina-3.png",
+  ],
   },
 ],
   },

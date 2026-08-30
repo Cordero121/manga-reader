@@ -29,11 +29,30 @@ export default async function ReaderPage({
   if (!chapter || chapter.paginas.length === 0) {
     notFound();
   }
+const currentIndex = manga.capitulos.findIndex(
+  (item) => item.numero === numeroCapitulo
+);
 
+const previousChapter = manga.capitulos[currentIndex - 1];
+const nextChapter = manga.capitulos[currentIndex + 1];
+
+const previousChapterUrl =
+  previousChapter && previousChapter.paginas.length > 0
+    ? `/leer/${manga.slug}/${previousChapter.numero}`
+    : undefined;
+
+const nextChapterUrl =
+  nextChapter && nextChapter.paginas.length > 0
+    ? `/leer/${manga.slug}/${nextChapter.numero}`
+    : undefined;
   return (
-    <MangaReader
-      chapterTitle={`${manga.titulo} - Capítulo ${chapter.numero}: ${chapter.titulo}`}
-      pages={chapter.paginas}
-    />
-  );
+  <MangaReader
+    chapterTitle={`${manga.titulo} - Capítulo ${chapter.numero}: ${chapter.titulo}`}
+    pages={chapter.paginas}
+    mangaUrl={`/manga/${manga.slug}`}
+    previousChapterUrl={previousChapterUrl}
+    nextChapterUrl={nextChapterUrl}
+  />
+);
+  
 }
