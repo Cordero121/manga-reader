@@ -18,6 +18,8 @@ export default function NuevoCapituloPage() {
   mangas[0]?.slug ?? ""
 );
 const [numeroCapitulo, setNumeroCapitulo] = useState("");
+const [tituloCapitulo, setTituloCapitulo] = useState("");
+const [mensaje, setMensaje] = useState("");
 const mangaActual = mangas.find(
   (manga) => manga.slug === mangaSeleccionado
 );
@@ -32,6 +34,13 @@ const capituloRepetido =
   mangaActual?.capitulos.some(
     (capitulo) => capitulo.numero === numeroCapituloConvertido
   ) ?? false;
+
+    const formularioValido =
+          mangaSeleccionado !== "" &&
+          numeroCapitulo !== "" &&
+          tituloCapitulo.trim() !== "" &&
+          paginas.length > 0 &&
+          !capituloRepetido;
 
 const moverPaginaArriba = (index: number) => {
   if (index === 0) return;
@@ -68,6 +77,24 @@ const eliminarPagina = (index: number) => {
 }; 
 const vaciarPaginas = () => {
   setPaginas([]);
+};
+
+const handleCrearCapitulo = () => {
+  if (!formularioValido || !mangaActual) {
+    return;
+  }
+
+  console.log({
+    manga: mangaActual.titulo,
+    slug: mangaActual.slug,
+    numero: numeroCapituloConvertido,
+    titulo: tituloCapitulo,
+    cantidadPaginas: paginas.length,
+  });
+
+  setMensaje(
+    `Capítulo ${numeroCapitulo} de "${mangaActual.titulo}" preparado correctamente.`
+  );
 };
  
   const handlePaginasChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -175,9 +202,11 @@ onChange={(event) => {
               </label>
 
               <input
-                type="text"
-                placeholder="Ej: Una nueva aventura"
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 outline-none"
+              type="text"
+              value={tituloCapitulo}
+              onChange={(event) => setTituloCapitulo(event.target.value)}
+              placeholder="Ej: Una nueva aventura"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 outline-none"
               />
             </div>
           </div>
@@ -200,17 +229,25 @@ onChange={(event) => {
             </p>
           </div>
 
-          <button
-  type="button"
-  disabled={
-  paginas.length === 0 ||
-  numeroCapitulo === "" ||
-  capituloRepetido
-}
-  className="rounded-lg bg-white px-5 py-3 font-medium text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
->
-  Crear capítulo
-</button>
+          {formularioValido && (
+            <div className="rounded-lg border border-green-900 bg-green-950/40 px-4 py-3 text-sm text-green-400">
+              Capítulo listo para publicar.
+            </div>
+          )}
+
+          <button type="button"
+            disabled={!formularioValido}
+            onClick={handleCrearCapitulo}
+            className="rounded-lg bg-white px-5 py-3 font-medium text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-500"
+          > Crear capítulo
+          </button>
+
+          {mensaje && (
+         <p className="text-sm text-green-400">
+          {mensaje}
+          </p>
+          )}  
+
         </form>
 
         <section className="mt-10">
