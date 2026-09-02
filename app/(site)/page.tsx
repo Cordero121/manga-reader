@@ -1,6 +1,14 @@
 import Link from "next/link";
-import { mangas } from "../../data/mangas";
-export default function Home() {
+import { supabase } from "../../lib/supabase/client";
+export default async function Home() {
+  const { data: mangas, error } = await supabase
+  .from("mangas")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+if (error) {
+  console.error(error);
+}
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <main>
@@ -92,7 +100,7 @@ export default function Home() {
     </div>
 
     <p className="text-sm text-zinc-500">
-      {mangas.length} obras disponibles
+      {mangas?.length ?? 0} obras disponibles
     </p>
 
   </div>
@@ -100,7 +108,7 @@ export default function Home() {
 
   <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 
-    {mangas.map((manga) => (
+    {mangas?.map((manga) => (
 
       <Link
         key={manga.id}
@@ -109,9 +117,19 @@ export default function Home() {
       >
 
         {/* PORTADA TEMPORAL */}
-        <div className="flex aspect-[2/3] items-center justify-center bg-zinc-800 text-sm text-zinc-500">
-          Portada
-        </div>
+        <div className="aspect-[2/3] overflow-hidden rounded-lg bg-zinc-800">
+  {manga.portada_url ? (
+    <img
+      src={manga.portada_url}
+      alt={`Portada de ${manga.titulo}`}
+      className="h-full w-full object-cover"
+    />
+  ) : (
+    <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+      Sin portada
+    </div>
+  )}
+</div>
 
 
         {/* INFORMACIÓN */}

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import MangaReader from "../../../../../components/reader/MangaReader";
-import { mangas } from "../../../../../data/mangas";
+import { supabase } from "../../../../../lib/supabase/client";
 
 interface ReaderPageProps {
   params: Promise<{
@@ -12,47 +12,93 @@ interface ReaderPageProps {
 export default async function ReaderPage({
   params,
 }: ReaderPageProps) {
-  const { slug, capitulo } = await params;
+const { slug, capitulo } = await params;
 
-  const manga = mangas.find((manga) => manga.slug === slug);
+const numeroCapitulo = Number(capitulo);
 
-  if (!manga) {
-    notFound();
-  }
+if (Number.isNaN(numeroCapitulo)) {
+  notFound();
+}
 
-  const numeroCapitulo = Number(capitulo);
+const { data: manga, error: mangaError } = await supabase
+  .from("mangas")
+  .select(`
+    id,
+    slug,
+    titulo,
+    capitulos (
+      id,
+      numero,
+      titulo,
+      paginas (
+        id,
+        numero,
+        imagen_url
+      )
+    )
+  `)
+  .eq("slug", slug)
+  .single();
 
-  const chapter = manga.capitulos.find(
-    (item) => item.numero === numeroCapitulo
+if (mangaError) {
+  console.error("ERROR SUPABASE MANGA:", mangaError);
+
+  return (
+    <main className="min-h-screen bg-zinc-950 p-10 text-white">
+      <h1 className="text-2xl font-bold text-red-400">
+        Error al cargar manga
+      </h1>
+
+      <p className="mt-4 text-zinc-300">
+        {mangaError.message}
+      </p>
+    </main>
   );
+}
 
-  if (!chapter || chapter.paginas.length === 0) {
-    notFound();
-  }
-const currentIndex = manga.capitulos.findIndex(
+if (!manga) {
+  notFound();
+}
+
+const capitulosOrdenados = [...(manga.capitulos ?? [])].sort(
+  (a, b) => a.numero - b.numero
+);
+
+const chapter = capitulosOrdenados.find(
   (item) => item.numero === numeroCapitulo
 );
 
-const previousChapter = manga.capitulos[currentIndex - 1];
-const nextChapter = manga.capitulos[currentIndex + 1];
+if (!chapter || !chapter.paginas || chapter.paginas.length === 0) {
+  notFound();
+}
 
-const previousChapterUrl =
-  previousChapter && previousChapter.paginas.length > 0
-    ? `/leer/${manga.slug}/${previousChapter.numero}`
-    : undefined;
+const paginasOrdenadas = [...chapter.paginas].sort(
+  (a, b) => a.numero - b.numero
+);
 
-const nextChapterUrl =
-  nextChapter && nextChapter.paginas.length > 0
-    ? `/leer/${manga.slug}/${nextChapter.numero}`
-    : undefined;
+const currentIndex = capitulosOrdenados.findIndex(
+  (item) => item.numero === numeroCapitulo
+);
+
+const previousChapter = capitulosOrdenados[currentIndex - 1];
+const nextChapter = capitulosOrdenados[currentIndex + 1];
+
+const previousChapterUrl = previousChapter
+  ? `/leer/${manga.slug}/${previousChapter.numero}`
+  : undefined;
+
+const nextChapterUrl = nextChapter
+  ? `/leer/${manga.slug}/${nextChapter.numero}`
+  : undefined;
+
   return (
   <MangaReader
-    chapterTitle={`${manga.titulo} - Capítulo ${chapter.numero}: ${chapter.titulo}`}
-    pages={chapter.paginas}
-    mangaUrl={`/manga/${manga.slug}`}
-    previousChapterUrl={previousChapterUrl}
-    nextChapterUrl={nextChapterUrl}
-  />
+  chapterTitle={`${manga.titulo} - Capítulo ${chapter.numero}: ${chapter.titulo}`}
+  pages={paginasOrdenadas.map((pagina) => pagina.imagen_url)}
+  mangaUrl={`/manga/${manga.slug}`}
+  previousChapterUrl={previousChapterUrl}
+  nextChapterUrl={nextChapterUrl}
+/>
 );
   
 }

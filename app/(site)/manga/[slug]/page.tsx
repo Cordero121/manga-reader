@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { mangas } from "../../../../data/mangas";
+import { supabase } from "../../../../lib/supabase/client";
 
 interface MangaPageProps {
   params: Promise<{
@@ -9,13 +9,31 @@ interface MangaPageProps {
 }
 
 export default async function MangaPage({ params }: MangaPageProps) {
-  const { slug } = await params;
+  
+const { slug } = await params;
 
-  const manga = mangas.find((manga) => manga.slug === slug);
+const { data: manga, error } = await supabase
+  .from("mangas")
+  .select(`
+    *,
+    capitulos (
+      id,
+      numero,
+      titulo,
+      fecha,
+      paginas (
+        id,
+        numero,
+        imagen_url
+      )
+    )
+  `)
+  .eq("slug", slug)
+  .single();
 
-  if (!manga) {
-    notFound();
-  }
+if (error || !manga) {
+  notFound();
+}
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -53,7 +71,7 @@ export default async function MangaPage({ params }: MangaPageProps) {
 
             {/* GÉNEROS */}
             <div className="mt-6 flex flex-wrap gap-2">
-              {manga.generos.map((genero) => (
+              {manga.generos?.map((genero: string) => (
                 <span
                   key={genero}
                   className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400"
@@ -116,62 +134,44 @@ export default async function MangaPage({ params }: MangaPageProps) {
 
           <div className="overflow-hidden rounded-xl border border-zinc-800">
 
-            {manga.capitulos.map((capitulo) => {
+{[...(manga.capitulos ?? [])]
+  .sort((a, b) => a.numero - b.numero)
+  .map((capitulo) => {
+    const disponible =
+      (capitulo.paginas?.length ?? 0) > 0;
 
-  const disponible = capitulo.paginas.length > 0;
-
-  if (!disponible) {
     return (
       <div
-        key={capitulo.numero}
-        className="flex items-center justify-between border-b border-zinc-800 px-6 py-5 last:border-b-0 opacity-60"
+        key={capitulo.id}
+        className="flex items-center justify-between border-b border-zinc-800 py-4"
       >
         <div>
-          <p className="font-medium">
-            Capítulo {capitulo.numero}
+          <p className="font-medium text-white">
+            Capítulo {capitulo.numero}: {capitulo.titulo}
           </p>
 
-          <p className="mt-1 text-sm text-zinc-500">
-            {capitulo.titulo}
-          </p>
+          {capitulo.fecha && (
+            <p className="mt-1 text-sm text-zinc-500">
+              {capitulo.fecha}
+            </p>
+          )}
         </div>
 
-        <p className="text-sm text-zinc-500">
-          {capitulo.fecha}
-        </p>
+        {disponible ? (
+          <Link
+            href={`/leer/${manga.slug}/${capitulo.numero}`}
+            className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+          >
+            Leer
+          </Link>
+        ) : (
+          <span className="text-sm text-zinc-600">
+            No disponible
+          </span>
+        )}
       </div>
     );
-  }
-
-  return (
-    <Link
-      key={capitulo.numero}
-      href={`/leer/${manga.slug}/${capitulo.numero}`}
-      className="flex items-center justify-between border-b border-zinc-800 px-6 py-5 last:border-b-0 transition hover:bg-zinc-900"
-    >
-      <div>
-        <p className="font-medium">
-          Capítulo {capitulo.numero}
-        </p>
-
-        <p className="mt-1 text-sm text-zinc-500">
-          {capitulo.titulo}
-        </p>
-      </div>
-
-      <div className="text-right">
-        <p className="text-sm text-zinc-500">
-          {capitulo.fecha}
-        </p>
-
-        <p className="mt-1 text-xs text-zinc-400">
-          Leer capítulo →
-        </p>
-      </div>
-    </Link>
-  );
-
-})}
+  })}
 
           </div>
 
