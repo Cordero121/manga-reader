@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import MangaReader from "../../../../../components/reader/MangaReader";
 import { supabase } from "../../../../../lib/supabase/client";
 
+export const dynamic = "force-dynamic";
 interface ReaderPageProps {
   params: Promise<{
     slug: string;
