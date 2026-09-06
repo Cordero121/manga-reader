@@ -1,6 +1,6 @@
 import Link from "next/link";
-
 import { supabase } from "../../lib/supabase/client";
+
 
 export const dynamic = "force-dynamic";
 export default async function Home() {
@@ -8,7 +8,7 @@ export default async function Home() {
   .from("mangas")
   .select("*")
   .order("created_at", { ascending: false });
-
+  const mangaDestacado = mangas?.[0] ?? null;
 if (error) {
   console.error(error);
 }
@@ -53,29 +53,65 @@ if (error) {
     </div>
 
 
-    {/* ESPACIO PARA MANGA DESTACADO */}
-    <div className="flex justify-center md:justify-end">
-
-      <div className="flex aspect-[3/4] w-full max-w-md items-end rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-950 p-8">
-
-        <div>
-          <p className="text-sm uppercase tracking-widest text-zinc-500">
-            Próximamente
-          </p>
-
-          <h3 className="mt-2 text-2xl font-bold">
-            Manga destacado
-          </h3>
-
-          <p className="mt-2 text-sm text-zinc-400">
-            Este espacio podrá utilizarse para destacar una obra,
-            un capítulo nuevo o una próxima traducción.
-          </p>
-        </div>
-
+    {/* MANGA DESTACADO */}
+<div className="flex justify-center md:justify-end">
+  {mangaDestacado ? (
+    <Link
+      href={`/manga/${mangaDestacado.slug}`}
+      className="group relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900"
+    >
+      <div className="aspect-[3/4]">
+        {mangaDestacado.portada_url ? (
+          <img
+            src={mangaDestacado.portada_url}
+            alt={`Portada de ${mangaDestacado.titulo}`}
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-zinc-900 text-sm text-zinc-500">
+            Sin portada
+          </div>
+        )}
       </div>
 
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pt-20">
+        <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+          Manga destacado
+        </p>
+
+        <h3 className="mt-2 text-2xl font-bold text-white">
+          {mangaDestacado.titulo}
+        </h3>
+
+        {mangaDestacado.generos?.length > 0 && (
+          <p className="mt-2 text-sm text-zinc-300">
+            {mangaDestacado.generos.slice(0, 3).join(" · ")}
+          </p>
+        )}
+
+        <span className="mt-4 inline-block text-sm font-medium text-white">
+          Ver obra →
+        </span>
+      </div>
+    </Link>
+  ) : (
+    <div className="flex aspect-[3/4] w-full max-w-md items-end rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-950 p-8">
+      <div>
+        <p className="text-sm uppercase tracking-widest text-zinc-500">
+          Próximamente
+        </p>
+
+        <h3 className="mt-2 text-2xl font-bold">
+          Manga destacado
+        </h3>
+
+        <p className="mt-2 text-sm text-zinc-400">
+          Todavía no hay obras disponibles para destacar.
+        </p>
+      </div>
     </div>
+  )}
+</div>
 
   </div>
 </section>
