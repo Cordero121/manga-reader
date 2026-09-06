@@ -21,6 +21,7 @@ export default function Header() {
               >
                 Inicio
               </Link>
+              
             </li>
 
             <li>
@@ -38,6 +39,14 @@ export default function Header() {
                 className="transition hover:text-white"
               >
                 Nosotros
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/panel/login"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+              >
+                Acceso
               </Link>
             </li>
           </ul>

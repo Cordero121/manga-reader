@@ -17,7 +17,9 @@ export default function PanelLayout({
 
   const [cargando, setCargando] = useState(true);
 
-  const esLogin = pathname === "/panel/login";
+const [emailUsuario, setEmailUsuario] = useState<string | null>(null);
+  
+const esLogin = pathname === "/panel/login";
     
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -32,15 +34,16 @@ export default function PanelLayout({
 
     const comprobarSesion = async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  data: { session },
+} = await supabase.auth.getSession();
 
-      if (!session) {
-        router.replace("/panel/login");
-        return;
-      }
+if (!session) {
+  router.replace("/panel/login");
+  return;
+}
 
-      setCargando(false);
+setEmailUsuario(session.user.email ?? null);
+setCargando(false);
     };
 
     comprobarSesion();
@@ -48,10 +51,14 @@ export default function PanelLayout({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session && !esLogin) {
-        router.replace("/panel/login");
-      }
-    });
+  if (!session && !esLogin) {
+    setEmailUsuario(null);
+    router.replace("/panel/login");
+    return;
+  }
+
+  setEmailUsuario(session?.user.email ?? null);
+});
 
     return () => {
       subscription.unsubscribe();
@@ -81,11 +88,17 @@ export default function PanelLayout({
           <p className="text-sm font-semibold">
             Panel de administración
           </p>
+
+          {emailUsuario && (
+            <p className="mt-1 text-xs text-zinc-500">
+              {emailUsuario}
+            </p>
+          )}
         </div>
 
         <nav className="flex flex-wrap items-center gap-2">
           <Link
-            href="/panel"
+            href="/panel/obras/nueva"
             className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
           >
             Nueva obra
@@ -102,6 +115,14 @@ export default function PanelLayout({
             className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
           >
             Gestionar obras
+          </Link>
+
+          <Link
+            href="/"
+            target="_blank"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+          >
+            Ver como lector
           </Link>
           <button
             type="button"

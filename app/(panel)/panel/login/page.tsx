@@ -1,11 +1,25 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../../lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+
+useEffect(() => {
+  const comprobarSesion = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session) {
+      router.replace("/panel");
+    }
+  };
+
+  comprobarSesion();
+}, [router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,8 +60,9 @@ export default function LoginPage() {
         </h1>
 
         <p className="mt-2 text-sm text-zinc-400">
-          Ingresá con una cuenta autorizada para administrar el contenido.
-        </p>
+  Ingresá con tu cuenta de administrador o traductor para gestionar
+  las obras y capítulos de la plataforma.
+</p>
 
         <form
           onSubmit={handleLogin}
