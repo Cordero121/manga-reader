@@ -43,9 +43,19 @@ if (error || !manga) {
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[280px_1fr]">
 
           {/* PORTADA */}
-          <div className="aspect-[2/3] w-full rounded-xl border border-zinc-800 bg-zinc-900 flex items-center justify-center text-zinc-600">
-            Portada
-          </div>
+          <div className="aspect-[2/3] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+              {manga.portada_url ? (
+                <img
+                  src={manga.portada_url}
+                  alt={`Portada de ${manga.titulo}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-zinc-500">
+                  Sin portada
+                </div>
+              )}
+            </div>
 
           {/* INFORMACIÓN */}
           <div>
