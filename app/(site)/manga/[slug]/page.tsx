@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../../../lib/supabase/client";
-
+export const dynamic = "force-dynamic";
 interface MangaPageProps {
   params: Promise<{
     slug: string;
