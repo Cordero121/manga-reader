@@ -1,5 +1,8 @@
 import Link from "next/link";
+
 import { supabase } from "../../lib/supabase/client";
+
+export const dynamic = "force-dynamic";
 export default async function Home() {
   const { data: mangas, error } = await supabase
   .from("mangas")
