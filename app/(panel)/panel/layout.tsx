@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase/client";
+import Link from "next/link";
 
 interface PanelLayoutProps {
   children: ReactNode;
@@ -74,20 +75,42 @@ export default function PanelLayout({
   return (
   <>
     <header className="border-b border-zinc-800 bg-zinc-950 text-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
+        
         <div>
           <p className="text-sm font-semibold">
             Panel de administración
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
-        >
-          Cerrar sesión
-        </button>
+        <nav className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/panel"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+          >
+            Nueva obra
+          </Link>
+
+          <Link
+            href="/panel/capitulos"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+          >
+            Nuevo capítulo
+          </Link>
+          <Link
+            href="/panel/obras"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+          >
+            Gestionar obras
+          </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-400 transition hover:bg-red-950"
+          >
+            Cerrar sesión
+          </button>
+        </nav>
       </div>
     </header>
 
