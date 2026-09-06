@@ -7,6 +7,7 @@ interface PaginaCapitulo {
   id: number;
   numero: number;
   imagen_url: string;
+  storage_path: string | null;
 }
 interface PaginaNueva {
   archivo: File;
@@ -39,7 +40,8 @@ export default function EditarCapituloPage() {
                 paginas (
                 id,
                 numero,
-                imagen_url
+                imagen_url,
+                storage_path
                 )
             `)
         .eq("id", capituloId)
@@ -109,9 +111,31 @@ const eliminarPagina = async (paginaId: number) => {
     return;
   }
 
+  const confirmado = window.confirm(
+    `¿Seguro que querés eliminar la página ${paginaAEliminar.numero}?`
+  );
+
+  if (!confirmado) {
+    return;
+  }
+
   setGuardando(true);
   setMensaje("");
   setError("");
+
+  if (paginaAEliminar.storage_path) {
+    const { error: storageError } = await supabase.storage
+      .from("paginas")
+      .remove([paginaAEliminar.storage_path]);
+
+    if (storageError) {
+      setGuardando(false);
+      setError(
+        `No se pudo eliminar la imagen de Storage: ${storageError.message}`
+      );
+      return;
+    }
+  }
 
   const { error: deleteError } = await supabase
     .from("paginas")
@@ -126,9 +150,11 @@ const eliminarPagina = async (paginaId: number) => {
     return;
   }
 
-  setPaginas((prev) =>
-    prev.filter((pagina) => pagina.id !== paginaId)
+  const paginasRestantes = paginas.filter(
+    (pagina) => pagina.id !== paginaId
   );
+
+  setPaginas(paginasRestantes);
 
   setGuardando(false);
   setMensaje("Página eliminada correctamente.");
@@ -198,11 +224,12 @@ const handleAgregarPaginas = async () => {
     const { data: paginaCreada, error: paginaError } = await supabase
       .from("paginas")
       .insert({
-        capitulo_id: capituloId,
-        numero: numeroPagina,
-        imagen_url: publicUrlData.publicUrl,
-      })
-      .select("id, numero, imagen_url")
+                capitulo_id: capituloId,
+                numero: numeroPagina,
+                imagen_url: publicUrlData.publicUrl,
+                storage_path: nombreArchivo,
+                })
+      .select("id, numero, imagen_url, storage_path")
       .single();
 
     if (paginaError || !paginaCreada) {

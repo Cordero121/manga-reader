@@ -229,6 +229,7 @@ const handleCrearCapitulo = async () => {
         capitulo_id: capituloCreado.id,
         numero: index + 1,
         imagen_url: publicUrlData.publicUrl,
+        storage_path: nombreArchivo,
       });
 
     if (paginaError) {
